@@ -51,6 +51,7 @@ def checkForQuote(postHTML:str):
     return False
 
 def getStringHTMLPostFromURL(postURL):
+    """But till without quotes / emotes / img and etc"""
     postId = postURL[29: len(postURL)]
     page = requests.get(postURL)
     soup = BeautifulSoup(page.text, 'html.parser')
@@ -63,13 +64,14 @@ def checkForQuote(postHTML:str):
             return True
     return False
 
+
 def getPostFromHTML(postHTML:str):
     """For posts with quotes are so not trivial solution"""
     if not checkForQuote(postHTML):
         start = postHTML.index('<p>')
         stop = postHTML.index('</p>')
         post =  (postHTML[start+3:stop]).lower()
-        return ((((post.replace('\xa0', '')).replace(',', '')).replace('-', '')).replace('.', '')).replace('?', '')
+        return ((((((post.replace('\xa0', '')).replace(',', '')).replace('-', '')).replace('.', '')).replace('?', '')).replace(')', '')).replace('(', '')
     return "nullexquote"
 
 def allPostsString(postsURLs):
@@ -98,23 +100,50 @@ def countWords(allPostsData):
                 countWords[index] += 1
     return wordsData, countWords
 
-def mostInData(wordsData, countWords, wordsLimit=45):
+def wordRules(word):
+    if  '<img' in word:
+        return False
+    if 'datasmile=' in word:
+        return False
+    if 'datashortcut=' in word:
+        return False
+    if 'alt=' in word:
+        return False
+    if 'title=' in word:
+        return False
+    if 'src=' in word:
+        return False
+    return True
+
+
+
+def mostInData(wordsData, countWords):
+    data = np.empty(shape=[0, 2])
+    for i in range(len(countWords)):
+        if wordRules(wordsData[i]):
+            data = np.append(data, [[wordsData[i], countWords[i]]], axis=0)
+    print(data)
+
+
+
+    """
     countWordsSorted = -np.sort(-countWords)
     k = 0
     for i in range(len(countWordsSorted)):
         index = np.where(countWords == countWordsSorted[i])
         print(wordsData[index], countWordsSorted[i])
         k += 1
-        if k > wordsLimit:
+        if k > 30:
             return
+        """
 
 
-def main(userName='Bonessa97', pagesLimit=50):
+def main(userName='EnjoyThePain', pagesLimit=1):
     t1 = time.time()
     URL = getURL(userName)
-    postsId = getAllPostsId(URL, pagesLimit)
-    postsURLs = getAllPostsURLs(postsId)
-    arr = deleteQuotesFromArray(allPostsString(postsURLs))
+    a = getAllPostsId(URL, pagesLimit)
+    b = getAllPostsURLs(a)
+    arr = deleteQuotesFromArray(allPostsString(b))
     wData, cWords = countWords(arr)
 
     mostInData(wData, cWords)
