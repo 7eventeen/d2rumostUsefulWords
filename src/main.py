@@ -115,30 +115,32 @@ def wordRules(word):
         return False
     return True
 
-
+def sortData(data):
+    """Where data is 2nd numpy arr with {word: count of word}
+       And this bubble sort works so badly, don't care about that
+    """
+    size = len(data)
+    for j in range(1, size):
+        flag = False
+        for i in range(1, size - j - 1):
+            if int(data[i][1]) < int(data[i+1][1]):
+                data[i][1], data[i+1][1] = data[i+1][1], data[i][1]
+                flag = True
+        if not flag:
+            break
+    return data
 
 def mostInData(wordsData, countWords):
     data = np.empty(shape=[0, 2])
     for i in range(len(countWords)):
         if wordRules(wordsData[i]):
             data = np.append(data, [[wordsData[i], countWords[i]]], axis=0)
-    print(data)
+    print(sortData(data))
 
 
-
-    """
-    countWordsSorted = -np.sort(-countWords)
-    k = 0
-    for i in range(len(countWordsSorted)):
-        index = np.where(countWords == countWordsSorted[i])
-        print(wordsData[index], countWordsSorted[i])
-        k += 1
-        if k > 30:
-            return
-        """
-
-
-def main(userName='EnjoyThePain', pagesLimit=1):
+def main():
+    userName = input("$userName: ")
+    pagesLimit = int(input("$pagesLimit: "))
     t1 = time.time()
     URL = getURL(userName)
     a = getAllPostsId(URL, pagesLimit)
