@@ -69,12 +69,14 @@ def getStringHTMLPostFromURL(postURL):
     return post
 
 def getPostFromHTML(postHTML:str):
-    """For posts with quotes are so not trivial solution"""
     if not checkForQuote(postHTML):
-        start = postHTML.index('<p>')
-        stop = postHTML.index('</p>')
-        post =  (postHTML[start+3:stop]).lower()
-        return ((((((post.replace('\xa0', '')).replace(',', '')).replace('-', '')).replace('.', '')).replace('?', '')).replace(')', '')).replace('(', '')
+        try:
+            start = postHTML.index('<p>')
+            stop = postHTML.index('</p>')
+            post =  (postHTML[start+3:stop]).lower()
+            return ((((((post.replace('\xa0', '')).replace(',', '')).replace('-', '')).replace('.', '')).replace('?', '')).replace(')', '')).replace('(', '')
+        except ValueError as e:
+            return 'addskypochini<p>iliyadayn'
     return "nullexquote"
 
 def allPostsString(postsURLs):
