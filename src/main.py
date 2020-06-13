@@ -120,33 +120,24 @@ def wordRules(word):
         return False
     return True
 
-def sortData(data):
-    """Where data is 2nd numpy arr with {word: count of word}
-       And this bubble sort works so badly, don't care about that
-    """
-    size = len(data)
-    for j in range(1, size):
-        flag = False
-        for i in range(1, size - j - 1):
-            if int(data[i][1]) < int(data[i+1][1]):
-                data[i][1], data[i+1][1] = data[i+1][1], data[i][1]
-                flag = True
-        if not flag:
-            break
-    return data
+
 
 def mostInData(wordsData, countWords):
     data = np.empty(shape=[0, 2])
     for i in range(len(countWords)):
         if wordRules(wordsData[i]):
             data = np.append(data, [[wordsData[i], countWords[i]]], axis=0)
-    return sortData(data)
+    return data
 
-def writeTXT(data, filename='output.csv'):
+def writeTXT(data, userName, filename='output.csv'):
     with open(filename, 'w') as f:
-        csv.register_dialect("custom", delimiter=" ", skipinitialspace=True)
+        csv.register_dialect("custom", delimiter=",", skipinitialspace=True)
         writer = csv.writer(f, dialect="custom")
-        for i in range(len(data)):
+        for i in range(-1, len(data)):
+            if (i == -1):
+                string = ('nickname', userName)
+                writer.writerow(string)
+                continue
             writeData = (data[i][0], data[i][1])
             writer.writerow(writeData)
 
@@ -163,7 +154,7 @@ def main():
 
     data = mostInData(wData, cWords)
 
-    writeTXT(data)
+    writeTXT(data, userName)
 
 
 if __name__ == '__main__':
