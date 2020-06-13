@@ -1,8 +1,18 @@
+#
+#
+#  -*- coding: utf-8 -*-
+#
+#
 import requests
-from bs4 import BeautifulSoup
 import numpy as np
 import time
-import re
+import sys
+import csv
+
+from bs4 import BeautifulSoup
+
+# SET NUMPY TRUNCTAION:
+np.set_printoptions(threshold=sys.maxsize)
 
 
 def getURL(userName):
@@ -58,13 +68,6 @@ def getStringHTMLPostFromURL(postURL):
     post = str(soup.find(id='message-container-' + postId).find(class_='messageText baseHtml'))
     return post
 
-def checkForQuote(postHTML:str):
-    for i in range(len(postHTML)):
-        if postHTML[i: i+11] == 'data-author':
-            return True
-    return False
-
-
 def getPostFromHTML(postHTML:str):
     """For posts with quotes are so not trivial solution"""
     if not checkForQuote(postHTML):
@@ -113,6 +116,8 @@ def wordRules(word):
         return False
     if 'src=' in word:
         return False
+    if 'href=' in word:
+        return False
     return True
 
 def sortData(data):
@@ -135,7 +140,15 @@ def mostInData(wordsData, countWords):
     for i in range(len(countWords)):
         if wordRules(wordsData[i]):
             data = np.append(data, [[wordsData[i], countWords[i]]], axis=0)
-    print(sortData(data))
+    return sortData(data)
+
+def writeTXT(data, filename='output.csv'):
+    with open(filename, 'w') as f:
+        csv.register_dialect("custom", delimiter=" ", skipinitialspace=True)
+        writer = csv.writer(f, dialect="custom")
+        for i in range(len(data)):
+            writeData = (data[i][0], data[i][1])
+            writer.writerow(writeData)
 
 
 def main():
@@ -148,9 +161,9 @@ def main():
     arr = deleteQuotesFromArray(allPostsString(b))
     wData, cWords = countWords(arr)
 
-    mostInData(wData, cWords)
+    data = mostInData(wData, cWords)
 
-    print(time.time() - t1)
+    writeTXT(data)
 
 if __name__ == '__main__':
     main()
